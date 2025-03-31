@@ -1,0 +1,32 @@
+{
+    "name": "hackhire",
+    "version": "0.1.0",
+    "description": "A platform for companies to host virtual hackathons for recruiting",
+    "main": "app.mjs",
+    "type": "module",
+    "scripts": {
+      "start": "node app.mjs",
+      "dev": "nodemon app.mjs",
+      "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+      "bcryptjs": "^2.4.3",
+      "cookie-parser": "^1.4.6",
+      "dotenv": "^16.3.1",
+      "express": "^4.18.2",
+      "express-session": "^1.17.3",
+      "hbs": "^4.2.0",
+      "mongoose": "^7.5.3",
+      "openai": "^4.12.1",
+      "passport": "^0.6.0",
+      "passport-local": "^1.0.0"
+    },
+    "devDependencies": {
+      "nodemon": "^3.0.1"
+    },
+    "engines": {
+      "node": ">=18.0.0"
+    },
+    "author": "",
+    "license": "ISC"
+  }
