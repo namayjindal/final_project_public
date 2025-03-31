@@ -1,0 +1,47 @@
+<div class="max-w-7xl mx-auto py-8 px-4">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Your Hackathons</h1>
+    <a href="/hackathons/create" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+      Create New Hackathon
+    </a>
+  </div>
+  
+  {{#if hackathons.length}}
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      {{#each hackathons}}
+        <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+          <div class="px-4 py-5">
+            <h3 class="text-lg font-medium">{{title}}</h3>
+            <p class="mt-1 text-sm text-gray-500">{{roleDescription}}</p>
+          </div>
+          <div class="px-4 py-4 border-t border-gray-200">
+            <div class="text-sm">
+              <span class="font-semibold">Start:</span> {{startDate}}
+            </div>
+            <div class="text-sm">
+              <span class="font-semibold">End:</span> {{endDate}}
+            </div>
+            <div class="text-sm">
+              <span class="font-semibold">Status:</span> 
+              {{#if isActive}}
+                <span class="text-green-600 font-medium">Active</span>
+              {{else}}
+                <span class="text-red-600 font-medium">Closed</span>
+              {{/if}}
+            </div>
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+      <div class="px-4 py-5 text-center">
+        <h3 class="text-lg font-medium mb-2">No Hackathons Yet</h3>
+        <p class="text-gray-500 mb-4">You haven't created any hackathons yet. Create your first hackathon to get started.</p>
+        <a href="/hackathons/create" class="inline-flex px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+          Create New Hackathon
+        </a>
+      </div>
+    </div>
+  {{/if}}
+</div>

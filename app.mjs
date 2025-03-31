@@ -40,59 +40,122 @@ app.use(session({
   saveUninitialized: true,
 }));
 
-// passport setup (placeholder for future authentication implementation)
+// RESEARCH TOPIC: passport setup for authentication
 app.use(passport.initialize());
 app.use(passport.session());
 
-// routes placeholder
-// TODO: split these into separate route files
+// Configure passport to use local strategy
+passport.use('company', new LocalStrategy(
+  async (username, password, done) => {
+    try {
+      const company = await Company.findOne({ username });
+      if (!company) {
+        return done(null, false, { message: 'Incorrect username' });
+      }
+      
+      const isMatch = await bcrypt.compare(password, company.hash);
+      if (!isMatch) {
+        return done(null, false, { message: 'Incorrect password' });
+      }
+      
+      return done(null, company);
+    } catch (err) {
+      return done(err);
+    }
+  }
+));
+
+// Serialize and deserialize user
+passport.serializeUser((user, done) => {
+  done(null, { id: user._id, type: 'company' });
+});
+
+passport.deserializeUser(async (data, done) => {
+  try {
+    const user = await Company.findById(data.id);
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
+});
+
+// Simple middleware to check if user is authenticated
+function isAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.redirect('/login');
+}
+
+// ONE WORKING FORM ROUTE: Create a hackathon
+app.get('/hackathons/create', (req, res) => {
+  res.render('create-hackathon', { title: 'Create Hackathon' });
+});
+
+app.post('/hackathons/create', async (req, res) => {
+  try {
+    const { title, description, evaluationCriteria, roleDescription, startDate, endDate } = req.body;
+    
+    // Convert evaluation criteria string to array
+    const criteriaArray = evaluationCriteria.split('\n').filter(item => item.trim() !== '');
+    
+    // Create new hackathon
+    const newHackathon = new Hackathon({
+      company: req.user ? req.user._id : "Demo Company", // Use authenticated user or demo
+      title,
+      description,
+      evaluationCriteria: criteriaArray,
+      roleDescription,
+      startDate: new Date(startDate),
+      endDate: new Date(endDate),
+      isActive: true,
+      submissions: []
+    });
+    
+    // Save to database
+    await newHackathon.save();
+    
+    // Redirect to results page
+    res.redirect('/hackathons/company');
+  } catch (err) {
+    console.error(err);
+    res.render('create-hackathon', { 
+      error: 'An error occurred while creating the hackathon',
+      formData: req.body
+    });
+  }
+});
+
+// Form results route
+app.get('/hackathons/company', async (req, res) => {
+  try {
+    // Get all hackathons
+    const hackathons = await Hackathon.find().sort({ createdAt: -1 });
+    
+    res.render('company-hackathons', { 
+      title: 'Your Hackathons',
+      hackathons
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+});
 
 // home route
 app.get('/', (req, res) => {
   res.render('index', { title: 'HackHire' });
 });
 
-// company routes (placeholder)
-app.get('/company/register', (req, res) => {
-  res.render('company-register');
+// Other routes
+app.get('/login', (req, res) => {
+  res.render('login', { title: 'Login' });
 });
 
-app.get('/company/login', (req, res) => {
-  res.render('company-login');
-});
-
-app.get('/company/dashboard', (req, res) => {
-  // TODO: Add authentication check
-  res.render('company-dashboard');
-});
-
-app.get('/company/create-hackathon', (req, res) => {
-  // TODO: Add authentication check
-  res.render('create-hackathon');
-});
-
-// applicant routes (placeholder)
-app.get('/applicant/register', (req, res) => {
-  res.render('applicant-register');
-});
-
-app.get('/applicant/login', (req, res) => {
-  res.render('applicant-login');
-});
-
-app.get('/applicant/dashboard', (req, res) => {
-  // TODO: Add authentication check
-  res.render('applicant-dashboard');
-});
-
-app.get('/hackathons', (req, res) => {
-  res.render('hackathons');
-});
-
-app.get('/hackathons/:id', (req, res) => {
-  // TODO: Fetch hackathon details
-  res.render('hackathon-details');
-});
+app.post('/login', passport.authenticate('company', {
+  successRedirect: '/hackathons/company',
+  failureRedirect: '/login',
+}));
 
 // 404 handler
 app.use((req, res, next) => {
@@ -108,10 +171,17 @@ app.use((err, req, res, next) => {
   });
 });
 
-// start server
+// Connect to MongoDB and start server
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/hackhire')
+  .then(() => {
+    console.log('Connected to MongoDB');
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+  });
 
 export default app;
