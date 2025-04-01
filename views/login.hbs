@@ -1,27 +1,45 @@
-<div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md mt-10">
-  <h2 class="text-2xl font-bold text-center mb-6">Login</h2>
+<div class="max-w-md mx-auto bg-white p-8 rounded-lg shadow-md">
+  <div class="text-center mb-8">
+    <div class="inline-block p-3 rounded-full bg-blue-100 text-blue-600 mb-4">
+      <i class="fas fa-user-circle text-4xl"></i>
+    </div>
+    <h2 class="text-2xl font-bold">Log In to HackHire</h2>
+    <p class="text-gray-500 mt-1">Access your dashboard and manage hackathons</p>
+  </div>
   
-  <form action="/login" method="POST" class="space-y-4">
+  <form action="/login" method="POST" class="space-y-5">
     <div>
-      <label for="username" class="block text-gray-700">Username</label>
-      <input type="text" name="username" id="username" required
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+      <label for="username" class="block text-gray-700 font-medium mb-1">Username</label>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <i class="fas fa-user text-gray-400"></i>
+        </div>
+        <input type="text" name="username" id="username" required
+          class="w-full pl-10 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+      </div>
     </div>
     
     <div>
-      <label for="password" class="block text-gray-700">Password</label>
-      <input type="password" name="password" id="password" required
-        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+      <label for="password" class="block text-gray-700 font-medium mb-1">Password</label>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <i class="fas fa-lock text-gray-400"></i>
+        </div>
+        <input type="password" name="password" id="password" required
+          class="w-full pl-10 px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+      </div>
     </div>
     
     <div>
-      <button type="submit" class="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">
-        Log In
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 transition flex items-center justify-center">
+        <i class="fas fa-sign-in-alt mr-2"></i> Log In
       </button>
     </div>
   </form>
   
-  <p class="mt-4 text-center text-gray-500">
-    For testing, you can use any username and password
-  </p>
+  <div class="mt-6 pt-6 border-t border-gray-200 text-center">
+    <p class="text-gray-500">
+      <i class="fas fa-info-circle mr-1"></i> For testing, you can use any username and password
+    </p>
+  </div>
 </div>
