@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Hackathon | HackHire</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Navigation -->
+  <nav class="bg-white shadow mb-4">
+    <div class="container mx-auto px-4 py-4 flex justify-between">
+      <a href="/" class="text-xl font-bold text-blue-600">HackHire</a>
+      <div>
+        <a href="/hackathons/create" class="px-4 py-2 rounded text-blue-600 hover:text-blue-800">Create Hackathon</a>
+        <a href="/hackathons/company" class="px-4 py-2 rounded text-blue-600 hover:text-blue-800">View Hackathons</a>
+        <a href="/hackathons/browse" class="px-4 py-2 rounded text-blue-600 hover:text-blue-800">Browse Hackathons</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4">
+    <div class="max-w-4xl mx-auto py-8 px-4">
+      <h1 class="text-2xl font-bold mb-6">Create a New Hackathon</h1>
+      
+      <div id="error-container" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"></div>
+      
+      <!-- Working form that allows data to be modified -->
+      <form action="/hackathons/create" method="POST" class="space-y-6">
+        <div>
+          <label for="title" class="block text-gray-700">Hackathon Title</label>
+          <input type="text" name="title" id="title" required 
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+        </div>
+        
+        <div>
+          <label for="description" class="block text-gray-700">Description</label>
+          <textarea name="description" id="description" rows="4" required 
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none"></textarea>
+          <p class="mt-1 text-sm text-gray-500">Describe the hackathon challenge and requirements.</p>
+        </div>
+        
+        <div>
+          <label for="evaluationCriteria" class="block text-gray-700">Evaluation Criteria</label>
+          <textarea name="evaluationCriteria" id="evaluationCriteria" rows="4" required 
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none"></textarea>
+          <p class="mt-1 text-sm text-gray-500">Enter each criterion on a new line.</p>
+        </div>
+        
+        <div>
+          <label for="roleDescription" class="block text-gray-700">Target Role Description</label>
+          <input type="text" name="roleDescription" id="roleDescription" required 
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+        </div>
+        
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label for="startDate" class="block text-gray-700">Start Date</label>
+            <input type="datetime-local" name="startDate" id="startDate" required 
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+          </div>
+          
+          <div>
+            <label for="endDate" class="block text-gray-700">End Date</label>
+            <input type="datetime-local" name="endDate" id="endDate" required 
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+          </div>
+        </div>
+        
+        <div class="flex justify-end">
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            Create Hackathon
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white mt-8 py-4">
+    <div class="container mx-auto px-4">
+      <p class="text-center text-gray-500">&copy; 2023 HackHire</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,4 +1,4 @@
-// app.mjs - Main application file
+// app.mjs - Updated to serve HTML files
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -22,10 +22,6 @@ const __dirname = path.dirname(__filename);
 
 // create express app
 const app = express();
-
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'hbs');
 
 // middlewares
 app.use(express.json());
@@ -87,9 +83,22 @@ function isAuthenticated(req, res, next) {
   res.redirect('/login');
 }
 
-// ONE WORKING FORM ROUTE: Create a hackathon
+// Routes
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'login.html'));
+});
+
+app.post('/login', passport.authenticate('company', {
+  successRedirect: '/hackathons/company',
+  failureRedirect: '/login',
+}));
+
 app.get('/hackathons/create', (req, res) => {
-  res.render('create-hackathon', { title: 'Create Hackathon' });
+  res.sendFile(path.join(__dirname, 'public', 'create-hackathon.html'));
 });
 
 app.post('/hackathons/create', async (req, res) => {
@@ -119,56 +128,37 @@ app.post('/hackathons/create', async (req, res) => {
     res.redirect('/hackathons/company');
   } catch (err) {
     console.error(err);
-    res.render('create-hackathon', { 
-      error: 'An error occurred while creating the hackathon',
-      formData: req.body
-    });
+    res.status(500).send('Error creating hackathon');
   }
 });
 
-// Form results route
 app.get('/hackathons/company', async (req, res) => {
   try {
     // Get all hackathons
     const hackathons = await Hackathon.find().sort({ createdAt: -1 });
     
-    res.render('company-hackathons', { 
-      title: 'Your Hackathons',
-      hackathons
-    });
+    // Instead of rendering a template, we'll send JSON
+    // Your frontend JS will handle displaying this data
+    res.json({ hackathons });
   } catch (err) {
     console.error(err);
     res.status(500).send('Server Error');
   }
 });
 
-// home route
-app.get('/', (req, res) => {
-  res.render('index', { title: 'HackHire' });
+app.get('/hackathons/browse', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'view-hackathons.html'));
 });
-
-// Other routes
-app.get('/login', (req, res) => {
-  res.render('login', { title: 'Login' });
-});
-
-app.post('/login', passport.authenticate('company', {
-  successRedirect: '/hackathons/company',
-  failureRedirect: '/login',
-}));
 
 // 404 handler
-app.use((req, res, next) => {
-  res.status(404).render('404', { title: 'Page Not Found' });
+app.use((req, res) => {
+  res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
 });
 
 // error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(err.status || 500).render('error', {
-    message: err.message,
-    error: app.get('env') === 'development' ? err : {}
-  });
+  res.status(err.status || 500).send('Server Error: ' + err.message);
 });
 
 // Connect to MongoDB and start server

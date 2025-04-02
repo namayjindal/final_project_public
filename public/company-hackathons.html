@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Hackathons | HackHire</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Navigation -->
+  <nav class="bg-white shadow mb-4">
+    <div class="container mx-auto px-4 py-4 flex justify-between">
+      <a href="/" class="text-xl font-bold text-blue-600">HackHire</a>
+      <div>
+        <a href="/hackathons/create" class="px-4 py-2 rounded text-blue-600 hover:text-blue-800">Create Hackathon</a>
+        <a href="/hackathons/company" class="px-4 py-2 rounded text-blue-600 hover:text-blue-800">View Hackathons</a>
+        <a href="/hackathons/browse" class="px-4 py-2 rounded text-blue-600 hover:text-blue-800">Browse Hackathons</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4">
+    <div class="max-w-7xl mx-auto py-8 px-4">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">Your Hackathons</h1>
+        <a href="/hackathons/create" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+          Create New Hackathon
+        </a>
+      </div>
+      
+      <div id="hackathons-container" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Hackathons will be loaded here via JavaScript -->
+        <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+          <div class="px-4 py-5 text-center">
+            <p class="text-gray-500">Loading hackathons...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white mt-8 py-4">
+    <div class="container mx-auto px-4">
+      <p class="text-center text-gray-500">&copy; 2023 HackHire</p>
+    </div>
+  </footer>
+
+  <script>
+    // Fetch hackathons data
+    document.addEventListener('DOMContentLoaded', async () => {
+      const container = document.getElementById('hackathons-container');
+      
+      try {
+        const response = await fetch('/hackathons/company');
+        const data = await response.json();
+        
+        // Clear loading message
+        container.innerHTML = '';
+        
+        if (data.hackathons && data.hackathons.length > 0) {
+          // Display each hackathon
+          data.hackathons.forEach(hackathon => {
+            const startDate = new Date(hackathon.startDate).toLocaleDateString();
+            const endDate = new Date(hackathon.endDate).toLocaleDateString();
+            
+            container.innerHTML += `
+              <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200">
+                <div class="px-4 py-5">
+                  <h3 class="text-lg font-medium">${hackathon.title}</h3>
+                  <p class="mt-1 text-sm text-gray-500">${hackathon.roleDescription}</p>
+                </div>
+                <div class="px-4 py-4 border-t border-gray-200">
+                  <div class="text-sm">
+                    <span class="font-semibold">Start:</span> ${startDate}
+                  </div>
+                  <div class="text-sm">
+                    <span class="font-semibold">End:</span> ${endDate}
+                  </div>
+                  <div class="text-sm">
+                    <span class="font-semibold">Status:</span> 
+                    ${hackathon.isActive 
+                      ? '<span class="text-green-600 font-medium">Active</span>' 
+                      : '<span class="text-red-600 font-medium">Closed</span>'}
+                  </div>
+                </div>
+              </div>
+            `;
+          });
+        } else {
+          // No hackathons found
+          container.innerHTML = `
+            <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200 col-span-full">
+              <div class="px-4 py-5 text-center">
+                <h3 class="text-lg font-medium mb-2">No Hackathons Yet</h3>
+                <p class="text-gray-500 mb-4">You haven't created any hackathons yet. Create your first hackathon to get started.</p>
+                <a href="/hackathons/create" class="inline-flex px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                  Create New Hackathon
+                </a>
+              </div>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Error fetching hackathons:', error);
+        container.innerHTML = `
+          <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200 col-span-full">
+            <div class="px-4 py-5 text-center text-red-600">
+              <p>Error loading hackathons. Please try again later.</p>
+            </div>
+          </div>
+        `;
+      }
+    });
+  </script>
+</body>
+</html>

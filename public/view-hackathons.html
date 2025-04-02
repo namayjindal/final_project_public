@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Hackathons | HackHire</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Navigation -->
+  <nav class="bg-white shadow mb-4">
+    <div class="container mx-auto px-4 py-4 flex justify-between">
+      <a href="/" class="text-xl font-bold text-blue-600">HackHire</a>
+      <div>
+        <a href="/hackathons/create" class="px-4 py-2 rounded text-blue-600 hover:text-blue-800">Create Hackathon</a>
+        <a href="/hackathons/company" class="px-4 py-2 rounded text-blue-600 hover:text-blue-800">View Hackathons</a>
+        <a href="/hackathons/browse" class="px-4 py-2 rounded text-blue-600 hover:text-blue-800">Browse Hackathons</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4">
+    <div class="max-w-7xl mx-auto py-8 px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold mb-4 md:mb-0">Browse Hackathons</h1>
+        
+        <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
+          <select id="filter-industry" class="px-4 py-2 rounded-md border border-gray-300">
+            <option value="">All Industries</option>
+            <option value="tech">Technology</option>
+            <option value="finance">Finance</option>
+            <option value="healthcare">Healthcare</option>
+            <option value="education">Education</option>
+          </select>
+          
+          <select id="filter-status" class="px-4 py-2 rounded-md border border-gray-300">
+            <option value="">All Status</option>
+            <option value="active">Active</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="completed">Completed</option>
+          </select>
+          
+          <button id="apply-filters" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            Apply Filters
+          </button>
+        </div>
+      </div>
+      
+      <div id="hackathons-container" class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <!-- Hackathons will be loaded here via JavaScript -->
+      </div>
+      
+      <!-- Placeholder for empty state -->
+      <div id="empty-state" class="hidden bg-white overflow-hidden shadow rounded-lg border border-gray-200 p-6 text-center">
+        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+        </svg>
+        <h3 class="mt-2 text-lg font-medium text-gray-900">No hackathons found</h3>
+        <p class="mt-1 text-sm text-gray-500">Try adjusting your filters or check back later for new opportunities.</p>
+      </div>
+      
+      <!-- Loading indicator -->
+      <div id="loading-indicator" class="text-center py-12">
+        <svg class="animate-spin h-10 w-10 text-blue-500 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <p class="mt-2 text-gray-600">Loading hackathons...</p>
+      </div>
+    </div>
+    
+    <!-- Hackathon Detail Modal -->
+    <div id="hackathon-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+          <h3 id="modal-title" class="text-lg font-bold text-gray-900">Hackathon Details</h3>
+          <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div id="modal-content" class="px-6 py-4">
+          <!-- Modal content will be populated dynamically -->
+        </div>
+        <div class="px-6 py-4 border-t border-gray-200 flex justify-end">
+          <button id="apply-hackathon" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            Apply for Hackathon
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white mt-8 py-4">
+    <div class="container mx-auto px-4">
+      <p class="text-center text-gray-500">&copy; 2023 HackHire</p>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const hackathonsContainer = document.getElementById('hackathons-container');
+      const emptyState = document.getElementById('empty-state');
+      const loadingIndicator = document.getElementById('loading-indicator');
+      const modal = document.getElementById('hackathon-modal');
+      const modalTitle = document.getElementById('modal-title');
+      const modalContent = document.getElementById('modal-content');
+      const closeModal = document.getElementById('close-modal');
+      const applyButton = document.getElementById('apply-hackathon');
+      const filterIndustry = document.getElementById('filter-industry');
+      const filterStatus = document.getElementById('filter-status');
+      const applyFilters = document.getElementById('apply-filters');
+      
+      let currentHackathonId = null;
+      
+      // Sample hackathon data (would normally come from API)
+      const sampleHackathons = [
+        {
+          id: 1,
+          title: "FinTech Mobile App Challenge",
+          company: "Finance Innovation Corp",
+          industry: "finance",
+          description: "Build a mobile app prototype that helps users manage their personal finances...",
+          roleDescription: "Mobile Developer",
+          startDate: new Date(Date.now() + 86400000), // Tomorrow
+          endDate: new Date(Date.now() + 86400000 * 14), // 2 weeks from now
+          isActive: true,
+          status: "upcoming",
+          evaluationCriteria: [
+            "UI/UX design and usability",
+            "Implementation of core financial tracking features",
+            "Data visualization of spending patterns",
+            "Security considerations"
+          ]
+        },
+        {
+          id: 2,
+          title: "AI Healthcare Assistant",
+          company: "MedTech Solutions",
+          industry: "healthcare",
+          description: "Develop an AI assistant that can answer common healthcare questions and guide patients to appropriate resources.",
+          roleDescription: "AI/ML Engineer",
+          startDate: new Date(Date.now() - 86400000 * 5), // 5 days ago
+          endDate: new Date(Date.now() + 86400000 * 5), // 5 days from now
+          isActive: true,
+          status: "active",
+          evaluationCriteria: [
+            "Accuracy of information provided",
+            "Conversational flow and user experience",
+            "Integration with healthcare resources",
+            "Privacy and data security implementation"
+          ]
+        },
+        {
+          id: 3,
+          title: "Educational Game Platform",
+          company: "LearnSphere",
+          industry: "education",
+          description: "Create an engaging educational game that teaches fundamental coding concepts to children ages 8-12.",
+          roleDescription: "Game Developer",
+          startDate: new Date(Date.now() - 86400000 * 30), // 30 days ago
+          endDate: new Date(Date.now() - 86400000 * 16), // 16 days ago
+          isActive: false,
+          status: "completed",
+          evaluationCriteria: [
+            "Educational value and learning outcomes",
+            "Game mechanics and engagement",
+            "Visual design and appeal to target age group",
+            "Technical implementation and performance"
+          ]
+        },
+        {
+          id: 4,
+          title: "E-commerce Recommendation Engine",
+          company: "ShopSmart Technologies",
+          industry: "tech",
+          description: "Build a product recommendation engine that uses machine learning to suggest relevant products to users based on browsing history and purchase behavior.",
+          roleDescription: "Data Scientist",
+          startDate: new Date(Date.now() - 86400000 * 2), // 2 days ago
+          endDate: new Date(Date.now() + 86400000 * 12), // 12 days from now
+          isActive: true,
+          status: "active",
+          evaluationCriteria: [
+            "Recommendation accuracy and relevance",
+            "Algorithm performance and scalability",
+            "Integration with existing e-commerce platforms",
+            "User experience and explainability of recommendations"
+          ]
+        }
+      ];
+      
+      // Format date for display
+      function formatDate(date) {
+        return new Date(date).toLocaleDateString('en-US', { 
+          year: 'numeric', 
+          month: 'short', 
+          day: 'numeric' 
+        });
+      }
+      
+      // Calculate days remaining
+      function getDaysRemaining(endDate) {
+        const today = new Date();
+        const end = new Date(endDate);
+        const diffTime = end - today;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+      }
+      
+      // Render hackathon cards
+      function renderHackathons(hackathons) {
+        hackathonsContainer.innerHTML = '';
+        loadingIndicator.classList.add('hidden');
+        
+        if (hackathons.length === 0) {
+          emptyState.classList.remove('hidden');
+          return;
+        }
+        
+        emptyState.classList.add('hidden');
+        
+        hackathons.forEach(hackathon => {
+          const daysRemaining = getDaysRemaining(hackathon.endDate);
+          const statusClass = hackathon.status === 'active' ? 'bg-green-100 text-green-800' : 
+                             hackathon.status === 'upcoming' ? 'bg-blue-100 text-blue-800' : 
+                             'bg-gray-100 text-gray-800';
+          
+          const card = document.createElement('div');
+          card.className = 'bg-white overflow-hidden shadow rounded-lg border border-gray-200 transition-all hover:shadow-md';
+          card.innerHTML = `
+            <div class="px-4 py-5">
+              <div class="flex justify-between items-start">
+                <h3 class="text-lg font-medium text-gray-900">${hackathon.title}</h3>
+                <span class="px-2 py-1 text-xs rounded-full ${statusClass}">
+                  ${hackathon.status.charAt(0).toUpperCase() + hackathon.status.slice(1)}
+                </span>
+              </div>
+              <p class="mt-1 text-sm text-gray-500">${hackathon.company}</p>
+              <p class="mt-2 text-sm text-gray-700">${hackathon.roleDescription}</p>
+            </div>
+            <div class="px-4 py-4 bg-gray-50 border-t border-gray-200">
+              <div class="flex justify-between items-center">
+                <div class="text-xs text-gray-500">
+                  ${formatDate(hackathon.startDate)} - ${formatDate(hackathon.endDate)}
+                </div>
+                <div class="text-xs font-medium ${daysRemaining > 0 ? 'text-green-600' : 'text-red-600'}">
+                  ${daysRemaining > 0 ? `${daysRemaining} days left` : 'Ended'}
+                </div>
+              </div>
+              <button data-id="${hackathon.id}" class="view-details mt-2 w-full px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-center">
+                View Details
+              </button>
+            </div>
+          `;
+          
+          hackathonsContainer.appendChild(card);
+        });
+        
+        // Add event listeners to view details buttons
+        document.querySelectorAll('.view-details').forEach(button => {
+          button.addEventListener('click', () => {
+            const hackathonId = parseInt(button.getAttribute('data-id'));
+            openHackathonDetails(hackathonId);
+          });
+        });
+      }
+      
+      // Open hackathon details modal
+      function openHackathonDetails(id) {
+        const hackathon = sampleHackathons.find(h => h.id === id);
+        if (!hackathon) return;
+        
+        currentHackathonId = id;
+        modalTitle.textContent = hackathon.title;
+        
+        modalContent.innerHTML = `
+          <div class="space-y-4">
+            <div>
+              <h4 class="text-sm font-medium text-gray-500">Company</h4>
+              <p class="text-gray-900">${hackathon.company}</p>
+            </div>
+            
+            <div>
+              <h4 class="text-sm font-medium text-gray-500">Role</h4>
+              <p class="text-gray-900">${hackathon.roleDescription}</p>
+            </div>
+            
+            <div>
+              <h4 class="text-sm font-medium text-gray-500">Timeline</h4>
+              <p class="text-gray-900">${formatDate(hackathon.startDate)} - ${formatDate(hackathon.endDate)}</p>
+            </div>
+            
+            <div>
+              <h4 class="text-sm font-medium text-gray-500">Description</h4>
+              <p class="text-gray-900">${hackathon.description}</p>
+            </div>
+            
+            <div>
+              <h4 class="text-sm font-medium text-gray-500">Evaluation Criteria</h4>
+              <ul class="list-disc pl-5 text-gray-900">
+                ${hackathon.evaluationCriteria.map(criterion => `<li>${criterion}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+        `;
+        
+        // Update apply button state
+        if (hackathon.status === 'completed') {
+          applyButton.classList.add('bg-gray-400');
+          applyButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+          applyButton.textContent = 'Hackathon Ended';
+          applyButton.disabled = true;
+        } else {
+          applyButton.classList.remove('bg-gray-400');
+          applyButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+          applyButton.textContent = 'Apply for Hackathon';
+          applyButton.disabled = false;
+        }
+        
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+      
+      // Close modal
+      function closeHackathonDetails() {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        currentHackathonId = null;
+      }
+      
+      // Filter hackathons
+      function filterHackathons() {
+        const industry = filterIndustry.value;
+        const status = filterStatus.value;
+        
+        let filtered = [...sampleHackathons];
+        
+        if (industry) {
+          filtered = filtered.filter(h => h.industry === industry);
+        }
+        
+        if (status) {
+          filtered = filtered.filter(h => h.status === status);
+        }
+        
+        renderHackathons(filtered);
+      }
+      
+      // Event listeners
+      closeModal.addEventListener('click', closeHackathonDetails);
+      applyButton.addEventListener('click', () => {
+        alert(`Applied for hackathon #${currentHackathonId}`);
+        closeHackathonDetails();
+      });
+      
+      applyFilters.addEventListener('click', filterHackathons);
+      
+      // Initial render
+      setTimeout(() => {
+        renderHackathons(sampleHackathons);
+      }, 500); // Simulate loading
+      
+      // Close modal if clicking outside
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeHackathonDetails();
+        }
+      });
+    });
+  </script>
+</body>
+</html>
