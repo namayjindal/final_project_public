@@ -1,20 +1,23 @@
 # Milestone 02
 
-## Repository Link (TODO: Fix)
-[https://github.com/namayjindal/hackhire](https://github.com/your-username/hackhire)
+## Repository Link
+https://github.com/namayjindal/hackhire
 
 ## Special Instructions for Using Form
-No special instructions needed. Simply fill out the form to create a new hackathon.
+No special instructions needed. Simply fill out the create hackathon form with the required information like title, description, evaluation criteria, role description, and date range. 
 
-## URL for form  (TODO: Fix)
-https://your-codespace-url.github.dev/hackathons/create
+## URL for form 
+/hackathons/create
+(Access from the navigation menu as "Create Hackathon" or directly through the URL)
 
-## URL for form result (TODO: Fix)
-https://your-codespace-url.github.dev/hackathons/company
+## URL for form result
+/hackathons/company
+(After submitting the form, you'll be redirected to this page where you can see a list of all created hackathons)
 
-## URL to github that shows line of code where research topic(s) are used / implemented (TODO: Fix)
-- Authentication Implementation: [Link to authentication setup in app.mjs](https://github.com/your-username/hackhire/blob/main/app.mjs#L23-L32)
-- Tailwind CSS Implementation: [Link to Tailwind setup](https://github.com/your-username/hackhire/blob/main/views/create-hackathon.hbs#L5-L10)
+## URL to github that shows line of code where research topic(s) are used / implemented
+- Tailwind CSS Implementation: [Link to Tailwind in HTML files](https://github.com/namayjindal/hackhire/blob/main/public/create-hackathon.html#L6)
+- Authentication Implementation: [Link to Passport.js setup in app.mjs](https://github.com/namayjindal/hackhire/blob/main/app.mjs#L33-L55)
 
 ## References 
-- Basic authentication approach referenced from passport.js documentation: https://www.passportjs.org/concepts/authentication/
+- Tailwind CSS: https://tailwindcss.com/docs
+- Passport.js authentication approach: https://www.passportjs.org/concepts/authentication/
