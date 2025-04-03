@@ -1,7 +1,7 @@
 # Milestone 02
 
 ## Repository Link
-https://github.com/namayjindal/hackhire
+https://github.com/namayjindal/final_project_public
 
 ## Special Instructions for Using Form
 No special instructions needed. Simply fill out the create hackathon form with the required information like title, description, evaluation criteria, role description, and date range. 
@@ -15,8 +15,8 @@ No special instructions needed. Simply fill out the create hackathon form with t
 (After submitting the form, you'll be redirected to this page where you can see a list of all created hackathons)
 
 ## URL to github that shows line of code where research topic(s) are used / implemented
-- Tailwind CSS Implementation: [Link to Tailwind in HTML files](https://github.com/namayjindal/hackhire/blob/main/public/create-hackathon.html#L6)
-- Authentication Implementation: [Link to Passport.js setup in app.mjs](https://github.com/namayjindal/hackhire/blob/main/app.mjs#L33-L55)
+- Tailwind CSS Implementation: [Tailwind CSS in create-hackathon.html](https://github.com/namayjindal/final_project_public/blob/main/public/create-hackathon.html#L6)
+- Authentication Implementation: [Passport.js setup in app.mjs](https://github.com/namayjindal/final_project_public/blob/main/app.mjs#L33-L55)
 
 ## References 
 - Tailwind CSS: https://tailwindcss.com/docs
