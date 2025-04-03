@@ -53,7 +53,7 @@
       const container = document.getElementById('hackathons-container');
       
       try {
-        const response = await fetch('/hackathons/company');
+        const response = await fetch('/api/hackathons/company');
         const data = await response.json();
         
         // Clear loading message
@@ -83,6 +83,14 @@
                     ${hackathon.isActive 
                       ? '<span class="text-green-600 font-medium">Active</span>' 
                       : '<span class="text-red-600 font-medium">Closed</span>'}
+                  </div>
+                  <div class="mt-3 flex space-x-2">
+                    <a href="/hackathons/${hackathon._id}/edit" class="flex-1 px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 text-center">
+                      Edit
+                    </a>
+                    <a href="/hackathons/${hackathon._id}" class="flex-1 px-3 py-1.5 text-sm bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 text-center">
+                      View Details
+                    </a>
                   </div>
                 </div>
               </div>
