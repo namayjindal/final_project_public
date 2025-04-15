@@ -12,7 +12,9 @@ const mongooseOpts = {
 };
 
 // replace with your own connection string if needed
-const dbUrl = process.env.MONGODB_URI || 'mongodb://localhost/hackhire';
+const dbUrl = process.env.MONGODB_URI || process.env.DSN || 'mongodb://localhost/hackhire';
+console.log("Connection string being used:", dbUrl);
+
 mongoose.connect(dbUrl, mongooseOpts);
 
 // define schemas
