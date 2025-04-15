@@ -265,6 +265,81 @@ app.get('/hackathons/:id', async (req, res) => {
   }
 });
 
+// Add these routes to app.mjs
+
+// Route to show application form
+app.get('/hackathons/:id/apply', async (req, res) => {
+  try {
+    // Check if hackathon exists and is active
+    const hackathon = await Hackathon.findById(req.params.id);
+    if (!hackathon) {
+      return res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+    }
+    
+    // Serve the application form HTML
+    res.sendFile(path.join(__dirname, 'public', 'apply-hackathon.html'));
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server Error');
+  }
+});
+
+// Route to handle application submission
+app.post('/hackathons/:id/apply', async (req, res) => {
+  try {
+    const { githubLink, devpostLink, coverLetter, fullName, email } = req.body;
+    
+    // Validation
+    if (!githubLink || !devpostLink || !coverLetter || !fullName || !email) {
+      return res.status(400).json({ message: 'All fields are required.' });
+    }
+    
+    if (coverLetter.length > 1000) {
+      return res.status(400).json({ message: 'Cover letter must be 1000 characters or less.' });
+    }
+    
+    // Find hackathon
+    const hackathon = await Hackathon.findById(req.params.id);
+    if (!hackathon) {
+      return res.status(404).json({ message: 'Hackathon not found.' });
+    }
+    
+    // Check if hackathon is still active
+    const now = new Date();
+    const endDate = new Date(hackathon.endDate);
+    if (now > endDate) {
+      return res.status(400).json({ message: 'This hackathon has ended.' });
+    }
+    
+    // Create temporary applicant (in a real app, this would be an existing user)
+    const tempApplicant = {
+      fullName,
+      email
+    };
+    
+    // Store application (simplified for the milestone)
+    // In a real app, you'd create a Submission document linked to a real Applicant
+    const submission = {
+      hackathonId: hackathon._id,
+      applicant: tempApplicant,
+      githubLink,
+      devpostLink,
+      coverLetter,
+      submissionDate: new Date(),
+      status: 'submitted'
+    };
+    
+    // For the milestone, we'll just console.log the submission
+    console.log('New submission received:', submission);
+    
+    // Return success response
+    res.status(201).json({ message: 'Application submitted successfully.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error. Please try again later.' });
+  }
+});
+
 // 404 handler
 app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));

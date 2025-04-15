@@ -318,8 +318,8 @@
       // Event listeners
       closeModal.addEventListener('click', closeHackathonDetails);
       applyButton.addEventListener('click', () => {
-        alert(`Applied for hackathon #${currentHackathonId}`);
-        closeHackathonDetails();
+        // Redirect to application form
+        window.location.href = `/hackathons/${currentHackathonId}/apply`;
       });
       
       applyFilters.addEventListener('click', filterHackathons);
