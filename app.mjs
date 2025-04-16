@@ -61,26 +61,69 @@ passport.use('company', new LocalStrategy(
   }
 ));
 
-// Serialize and deserialize user
+passport.use('applicant', new LocalStrategy(
+  async (username, password, done) => {
+    try {
+      const applicant = await Applicant.findOne({ username });
+      if (!applicant) {
+        return done(null, false, { message: 'Incorrect username' });
+      }
+      
+      const isMatch = await bcrypt.compare(password, applicant.hash);
+      if (!isMatch) {
+        return done(null, false, { message: 'Incorrect password' });
+      }
+      
+      return done(null, applicant);
+    } catch (err) {
+      return done(err);
+    }
+  }
+));
+
+// Serialize user with type information
 passport.serializeUser((user, done) => {
-  done(null, { id: user._id, type: 'company' });
+  // Store both the user ID and user type (company or applicant)
+  const userType = user instanceof Company ? 'company' : 'applicant';
+  done(null, { id: user._id, type: userType });
 });
 
+// Deserialize user based on stored type
 passport.deserializeUser(async (data, done) => {
   try {
-    const user = await Company.findById(data.id);
+    let user;
+    if (data.type === 'company') {
+      user = await Company.findById(data.id);
+    } else {
+      user = await Applicant.findById(data.id);
+    }
     done(null, user);
   } catch (err) {
     done(err);
   }
 });
 
-// Simple middleware to check if user is authenticated
 function isAuthenticated(req, res, next) {
   if (req.isAuthenticated()) {
     return next();
   }
   res.redirect('/login');
+}
+
+// Middleware to check if user is a company
+function isCompany(req, res, next) {
+  if (req.isAuthenticated() && req.user instanceof Company) {
+    return next();
+  }
+  res.status(403).send('Access denied: Company account required');
+}
+
+// Middleware to check if user is an applicant
+function isApplicant(req, res, next) {
+  if (req.isAuthenticated() && req.user instanceof Applicant) {
+    return next();
+  }
+  res.status(403).send('Access denied: Applicant account required');
 }
 
 // Routes
@@ -132,15 +175,23 @@ app.post('/hackathons/create', async (req, res) => {
   }
 });
 
-// Update this route in app.mjs
-app.get('/hackathons/company', async (req, res) => {
-  try {
-    // Instead of sending JSON, send the HTML file first
-    res.sendFile(path.join(__dirname, 'public', 'company-hackathons.html'));
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Server Error');
-  }
+// Apply authentication to routes
+app.get('/hackathons/company', isAuthenticated, isCompany, async (req, res) => {
+  // Now this route is protected and only accessible to authenticated companies
+  res.sendFile(path.join(__dirname, 'public', 'company-hackathons.html'));
+});
+
+app.get('/hackathons/create', isAuthenticated, isCompany, (req, res) => {
+  // Protected route for companies only
+  res.sendFile(path.join(__dirname, 'public', 'create-hackathon.html'));
+});
+
+// Add logout functionality
+app.get('/logout', (req, res) => {
+  req.logout((err) => {
+    if (err) { return next(err); }
+    res.redirect('/');
+  });
 });
 
 // Add a new API route to fetch the hackathons data
@@ -337,6 +388,59 @@ app.post('/hackathons/:id/apply', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error. Please try again later.' });
+  }
+});
+
+// Add a route for registration
+app.get('/register', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'register.html'));
+});
+
+// Company registration endpoint
+app.post('/register/company', async (req, res) => {
+  try {
+    const { username, companyName, email, password, industry, companySize, companyDescription } = req.body;
+    
+    // Check if username or email already exists
+    const existingCompany = await Company.findOne({
+      $or: [{ username }, { email }]
+    });
+    
+    if (existingCompany) {
+      return res.status(400).json({ 
+        message: 'A user with that username or email already exists' 
+      });
+    }
+    
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+    
+    // Create new company
+    const newCompany = new Company({
+      username,
+      companyName,
+      email,
+      hash,
+      industry,
+      companySize,
+      companyDescription,
+      hackathons: []
+    });
+    
+    // Save to database
+    await newCompany.save();
+    
+    // Log in the new company
+    req.login(newCompany, (err) => {
+      if (err) {
+        return next(err);
+      }
+      return res.redirect('/hackathons/company');
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
