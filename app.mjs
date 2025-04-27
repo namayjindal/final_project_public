@@ -142,6 +142,16 @@ app.post('/login', passport.authenticate('company', {
   failureRedirect: '/login',
 }));
 
+app.post('/login/company', passport.authenticate('company', {
+  successRedirect: '/hackathons/company',
+  failureRedirect: '/login',
+}));
+
+app.post('/login/applicant', passport.authenticate('applicant', {
+  successRedirect: '/hackathons/browse',
+  failureRedirect: '/login',
+}));
+
 app.get('/hackathons/create', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'create-hackathon.html'));
 });
@@ -449,6 +459,61 @@ app.post('/register/applicant', async (req, res) => {
         return next(err);
       }
       return res.redirect('/hackathons/browse');
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+app.post('/register/company', async (req, res) => {
+  try {
+    const { 
+      username, 
+      email, 
+      password,
+      companyName,
+      industry,
+      companySize,
+      companyDescription 
+    } = req.body;
+    
+    // Check if username or email already exists
+    const existingCompany = await Company.findOne({
+      $or: [{ username }, { email }]
+    });
+    
+    if (existingCompany) {
+      return res.status(400).json({ 
+        message: 'A company with that username or email already exists' 
+      });
+    }
+    
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(password, salt);
+    
+    // Create new company
+    const newCompany = new Company({
+      username,
+      companyName,
+      email,
+      hash,
+      industry,
+      companySize,
+      companyDescription,
+      hackathons: []
+    });
+    
+    // Save to database
+    await newCompany.save();
+    
+    // Log in the new company
+    req.login(newCompany, (err) => {
+      if (err) {
+        return next(err);
+      }
+      return res.redirect('/hackathons/company');
     });
   } catch (err) {
     console.error(err);
