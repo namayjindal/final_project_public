@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Browse Hackathons | HackHire</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/js/HackathonManager.js"></script>
 </head>
 <body class="bg-gray-50 min-h-screen">
   <!-- Navigation -->
@@ -28,10 +29,10 @@
         <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 md:space-x-2">
           <select id="filter-industry" class="px-4 py-2 rounded-md border border-gray-300">
             <option value="">All Industries</option>
-            <option value="tech">Technology</option>
-            <option value="finance">Finance</option>
-            <option value="healthcare">Healthcare</option>
-            <option value="education">Education</option>
+            <option value="Technology">Technology</option>
+            <option value="Finance">Finance</option>
+            <option value="Healthcare">Healthcare</option>
+            <option value="Education">Education</option>
           </select>
           
           <select id="filter-status" class="px-4 py-2 rounded-md border border-gray-300">
@@ -116,40 +117,20 @@
       
       let currentHackathonId = null;
       
-      // Format date for display
-      function formatDate(date) {
-        return new Date(date).toLocaleDateString('en-US', { 
-          year: 'numeric', 
-          month: 'short', 
-          day: 'numeric' 
-        });
-      }
-      
-      // Calculate days remaining
-      function getDaysRemaining(endDate) {
-        const today = new Date();
-        const end = new Date(endDate);
-        const diffTime = end - today;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        return diffDays;
-      }
-      
-      // Render hackathon cards
-      function renderHackathons(hackathons) {
-        hackathonsContainer.innerHTML = '';
+      // Define the render function for HackathonManager
+      const renderHackathonCards = (hackathons, container) => {
+        container.innerHTML = '';
+        
+        if (hackathons.length === 0) {
+          emptyState.classList.remove('hidden');
+          return;
+        }
+        
+        emptyState.classList.add('hidden');
         
         hackathons.forEach(hackathon => {
-          const daysRemaining = getDaysRemaining(hackathon.endDate);
-          const now = new Date();
-          const startDate = new Date(hackathon.startDate);
-          const endDate = new Date(hackathon.endDate);
-          
-          let status = 'completed';
-          if (now < startDate) {
-            status = 'upcoming';
-          } else if (now <= endDate) {
-            status = 'active';
-          }
+          const daysRemaining = HackathonManager.getDaysRemaining(hackathon.endDate);
+          const status = HackathonManager.getStatus(hackathon);
           
           const statusClass = status === 'active' ? 'bg-green-100 text-green-800' : 
                              status === 'upcoming' ? 'bg-blue-100 text-blue-800' : 
@@ -170,7 +151,7 @@
             <div class="px-4 py-4 bg-gray-50 border-t border-gray-200">
               <div class="flex justify-between items-center">
                 <div class="text-xs text-gray-500">
-                  ${formatDate(hackathon.startDate)} - ${formatDate(hackathon.endDate)}
+                  ${HackathonManager.formatDate(hackathon.startDate)} - ${HackathonManager.formatDate(hackathon.endDate)}
                 </div>
                 <div class="text-xs font-medium ${daysRemaining > 0 ? 'text-green-600' : 'text-red-600'}">
                   ${daysRemaining > 0 ? `${daysRemaining} days left` : 'Ended'}
@@ -182,7 +163,7 @@
             </div>
           `;
           
-          hackathonsContainer.appendChild(card);
+          container.appendChild(card);
         });
         
         // Add event listeners to view details buttons
@@ -192,17 +173,19 @@
             openHackathonDetails(hackathonId);
           });
         });
-      }
+      };
+      
+      // Create a new HackathonManager instance
+      const hackathonManager = new HackathonManager({
+        renderCallback: renderHackathonCards,
+        containerId: 'hackathons-container'
+      });
       
       // Open hackathon details modal
       async function openHackathonDetails(id) {
         try {
-          const response = await fetch(`/api/hackathons/${id}`);
-          const data = await response.json();
+          const hackathon = await hackathonManager.getHackathonById(id);
           
-          if (!data.hackathon) return;
-          
-          const hackathon = data.hackathon;
           currentHackathonId = id;
           modalTitle.textContent = hackathon.title;
           
@@ -215,7 +198,7 @@
               
               <div>
                 <h4 class="text-sm font-medium text-gray-500">Timeline</h4>
-                <p class="text-gray-900">${formatDate(hackathon.startDate)} - ${formatDate(hackathon.endDate)}</p>
+                <p class="text-gray-900">${HackathonManager.formatDate(hackathon.startDate)} - ${HackathonManager.formatDate(hackathon.endDate)}</p>
               </div>
               
               <div>
@@ -261,85 +244,30 @@
         currentHackathonId = null;
       }
       
-      // Filter hackathons based on selections
-      async function filterHackathons() {
-        const industry = filterIndustry.value;
-        const status = filterStatus.value;
-        
-        try {
-          loadingIndicator.classList.remove('hidden');
-          hackathonsContainer.innerHTML = '';
-          
-          const response = await fetch('/api/hackathons/browse');
-          const data = await response.json();
-          
-          loadingIndicator.classList.add('hidden');
-          
-          if (!data.hackathons || data.hackathons.length === 0) {
-            emptyState.classList.remove('hidden');
-            return;
-          }
-          
-          let filtered = [...data.hackathons];
-          
-          // Apply status filter if selected
-          if (status) {
-            const now = new Date();
-            filtered = filtered.filter(h => {
-              const startDate = new Date(h.startDate);
-              const endDate = new Date(h.endDate);
-              
-              if (status === 'upcoming') return now < startDate;
-              if (status === 'active') return now >= startDate && now <= endDate;
-              if (status === 'completed') return now > endDate;
-              return true;
-            });
-          }
-          
-          if (filtered.length === 0) {
-            emptyState.classList.remove('hidden');
-          } else {
-            emptyState.classList.add('hidden');
-            renderHackathons(filtered);
-          }
-        } catch (error) {
-          console.error('Error filtering hackathons:', error);
-          loadingIndicator.classList.add('hidden');
-          hackathonsContainer.innerHTML = `
-            <div class="bg-white overflow-hidden shadow rounded-lg border border-gray-200 col-span-full">
-              <div class="px-4 py-5 text-center text-red-600">
-                <p>Error loading hackathons. Please try again later.</p>
-              </div>
-            </div>
-          `;
-        }
-      }
-      
       // Event listeners
       closeModal.addEventListener('click', closeHackathonDetails);
       applyButton.addEventListener('click', () => {
         // Redirect to application form
-        window.location.href = `/hackathons/${currentHackathonId}/apply`;
+        if (currentHackathonId) {
+          window.location.href = `/hackathons/${currentHackathonId}/apply`;
+        }
       });
       
-      applyFilters.addEventListener('click', filterHackathons);
+      applyFilters.addEventListener('click', () => {
+        hackathonManager.applyFilters({
+          industry: filterIndustry.value,
+          status: filterStatus.value
+        });
+        hackathonManager.render();
+      });
       
       // Initial load of hackathons
-      async function loadHackathons() {
+      async function initializeHackathons() {
         try {
           loadingIndicator.classList.remove('hidden');
-          
-          const response = await fetch('/api/hackathons/browse');
-          const data = await response.json();
-          
+          await hackathonManager.loadHackathons();
           loadingIndicator.classList.add('hidden');
-          
-          if (data.hackathons && data.hackathons.length > 0) {
-            emptyState.classList.add('hidden');
-            renderHackathons(data.hackathons);
-          } else {
-            emptyState.classList.remove('hidden');
-          }
+          hackathonManager.render();
         } catch (error) {
           console.error('Error loading hackathons:', error);
           loadingIndicator.classList.add('hidden');
@@ -353,8 +281,8 @@
         }
       }
       
-      // Load initial hackathons
-      loadHackathons();
+      // Initialize the application
+      initializeHackathons();
       
       // Close modal if clicking outside
       modal.addEventListener('click', (e) => {
