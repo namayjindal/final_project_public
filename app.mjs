@@ -144,12 +144,12 @@ app.post('/login', passport.authenticate('company', {
 
 app.post('/login/company', passport.authenticate('company', {
   successRedirect: '/hackathons/company',
-  failureRedirect: '/login',
+  failureRedirect: '/login?error=Invalid%20username%20or%20password',
 }));
 
 app.post('/login/applicant', passport.authenticate('applicant', {
   successRedirect: '/hackathons/browse',
-  failureRedirect: '/login',
+  failureRedirect: '/login?error=Invalid%20username%20or%20password',
 }));
 
 app.get('/hackathons/create', (req, res) => {

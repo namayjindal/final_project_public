@@ -10,7 +10,7 @@ Namay Jindal
 https://github.com/nyu-csci-ua-0467-001-002-spring-2025/final-project-deployment-namayjindal
 
 ## URL for deployed site 
-[TODO: add url for your deployed site; it's okay if it's different from the generated url from the grader's codespace]
+[TODO]
 
 ## URL for form 1 (from previous milestone) 
 /hackathons/create
@@ -35,10 +35,10 @@ This form allows applicants to submit their projects for a specific hackathon. Y
 This form allows companies to register for an account. Fill out all required fields including username, company name, email, password, industry, company size, and company description.
 
 ## First link to github line number(s) for constructor, HOF, etc.
-https://github.com/nyu-csci-ua-0467-001-002-spring-2025/final-project-deployment-namayjindal/blob/master/app.mjs#L287-L302
+https://github.com/nyu-csci-ua-0467-001-002-spring-2025/final-project-deployment-namayjindal/blob/master/app.mjs#L273-L288
 
 ## Second link to github line number(s) for constructor, HOF, etc.
-https://github.com/nyu-csci-ua-0467-001-002-spring-2025/final-project-deployment-namayjindal/blob/master/public/view-hackathons.html#L301-L315
+https://github.com/nyu-csci-ua-0467-001-002-spring-2025/final-project-deployment-namayjindal/blob/master/public/js/HackathonManager.js#L6-L29
 
 ## Short description for links above
 The first link shows a higher-order function that processes form data through a filter pipeline, applying multiple validation functions before passing the data to the database. The second link demonstrates an ES6 class HackathonManager that handles loading, filtering, and displaying hackathon data with methods that utilize array higher-order functions like map and filter.
