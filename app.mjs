@@ -9,6 +9,8 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
+import openaiService from './services/openai.mjs';
+import { generateHackathonPrompt } from './services/openai.mjs';
 
 // load models
 import { Company, Applicant, Hackathon, Submission } from './db.mjs';
@@ -396,17 +398,24 @@ app.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
 
-// Company registration endpoint
-app.post('/register/company', async (req, res) => {
+app.post('/register/applicant', async (req, res) => {
   try {
-    const { username, companyName, email, password, industry, companySize, companyDescription } = req.body;
+    const { 
+      username, 
+      email, 
+      password, 
+      firstName, 
+      lastName, 
+      skills, 
+      githubProfile 
+    } = req.body;
     
     // Check if username or email already exists
-    const existingCompany = await Company.findOne({
+    const existingApplicant = await Applicant.findOne({
       $or: [{ username }, { email }]
     });
     
-    if (existingCompany) {
+    if (existingApplicant) {
       return res.status(400).json({ 
         message: 'A user with that username or email already exists' 
       });
@@ -416,31 +425,154 @@ app.post('/register/company', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
     
-    // Create new company
-    const newCompany = new Company({
+    // Convert skills string to array
+    const skillsArray = skills.split(',').map(skill => skill.trim()).filter(skill => skill);
+    
+    // Create new applicant
+    const newApplicant = new Applicant({
       username,
-      companyName,
+      firstName,
+      lastName,
       email,
       hash,
-      industry,
-      companySize,
-      companyDescription,
-      hackathons: []
+      skills: skillsArray,
+      githubProfile,
+      submissions: []
     });
     
     // Save to database
-    await newCompany.save();
+    await newApplicant.save();
     
-    // Log in the new company
-    req.login(newCompany, (err) => {
+    // Log in the new applicant
+    req.login(newApplicant, (err) => {
       if (err) {
         return next(err);
       }
-      return res.redirect('/hackathons/company');
+      return res.redirect('/hackathons/browse');
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Add a route to get AI-generated hackathon suggestions
+app.post('/api/generate-hackathon', async (req, res) => {
+  try {
+    // Extract company info from current logged-in user
+    const companyInfo = {
+      companyName: req.user?.companyName || 'Company',
+      industry: req.user?.industry || req.body.industry,
+      companyDescription: req.user?.companyDescription || req.body.companyDescription
+    };
+    
+    const roleDescription = req.body.roleDescription;
+    
+    // Call the OpenAI service to generate a hackathon prompt
+    const generatedContent = await generateHackathonPrompt(
+      companyInfo, 
+      roleDescription
+    );
+    
+    res.json({ success: true, generatedContent });
+  } catch (error) {
+    console.error('Error generating hackathon content:', error);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error generating hackathon content' 
+    });
+  }
+});
+
+// Add a data processing pipeline as a higher-order function example
+function createFormProcessingPipeline(...processors) {
+  // This is a higher-order function that creates a pipeline of form processors
+  return function(formData) {
+    // Start with the original form data
+    let processedData = { ...formData };
+    
+    // Apply each processor function in sequence
+    for (const processor of processors) {
+      processedData = processor(processedData);
+    }
+    
+    return processedData;
+  };
+}
+
+// Form processor functions
+const validateRequired = (data) => {
+  const requiredFields = ['title', 'description', 'evaluationCriteria', 'roleDescription', 'startDate', 'endDate'];
+  for (const field of requiredFields) {
+    if (!data[field]) {
+      throw new Error(`${field} is required`);
+    }
+  }
+  return data;
+};
+
+const sanitizeInputs = (data) => {
+  // Simple sanitization example
+  Object.keys(data).forEach(key => {
+    if (typeof data[key] === 'string') {
+      data[key] = data[key].trim();
+    }
+  });
+  return data;
+};
+
+const formatDates = (data) => {
+  data.startDate = new Date(data.startDate);
+  data.endDate = new Date(data.endDate);
+  return data;
+};
+
+const processEvaluationCriteria = (data) => {
+  // Split criteria text into array
+  if (typeof data.evaluationCriteria === 'string') {
+    data.evaluationCriteria = data.evaluationCriteria
+      .split('\n')
+      .map(item => item.trim())
+      .filter(item => item !== '');
+  }
+  return data;
+};
+
+// Create the processing pipeline
+const processHackathonForm = createFormProcessingPipeline(
+  validateRequired,
+  sanitizeInputs,
+  formatDates,
+  processEvaluationCriteria
+);
+
+// Update the hackathon creation route to use the pipeline
+app.post('/hackathons/create', isAuthenticated, isCompany, async (req, res) => {
+  try {
+    // Process form data through the pipeline
+    const processedData = processHackathonForm(req.body);
+    
+    // Create new hackathon
+    const newHackathon = new Hackathon({
+      company: req.user._id,
+      title: processedData.title,
+      description: processedData.description,
+      evaluationCriteria: processedData.evaluationCriteria,
+      roleDescription: processedData.roleDescription,
+      startDate: processedData.startDate,
+      endDate: processedData.endDate,
+      isActive: true,
+      submissions: []
+    });
+    
+    // Save to database
+    await newHackathon.save();
+    
+    // Redirect to hackathons page
+    res.redirect(302, '/hackathons/company');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send(`Error creating hackathon: ${err.message}`);
   }
 });
 
