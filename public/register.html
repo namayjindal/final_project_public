@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register | HackHire</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Navigation -->
+  <nav class="bg-white shadow mb-4">
+    <div class="container mx-auto px-4 py-4 flex justify-between">
+      <a href="/" class="text-xl font-bold text-blue-600">HackHire</a>
+      <div>
+        <a href="/hackathons/browse" class="px-4 py-2 rounded text-blue-600 hover:text-blue-800">Browse Hackathons</a>
+        <a href="/login" class="px-4 py-2 rounded text-blue-600 hover:text-blue-800">Login</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4">
+    <div class="max-w-4xl mx-auto py-8 px-4">
+      <h1 class="text-2xl font-bold mb-6">Create an Account</h1>
+      
+      <div id="error-container" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4"></div>
+      
+      <div class="flex mb-6">
+        <button id="company-tab" class="flex-1 py-2 px-4 border-b-2 border-blue-500 text-blue-600 font-medium">
+          Company Account
+        </button>
+        <button id="applicant-tab" class="flex-1 py-2 px-4 border-b border-gray-200 text-gray-500 font-medium">
+          Applicant Account
+        </button>
+      </div>
+      
+      <!-- Company Registration Form -->
+      <form id="company-form" action="/register/company" method="POST" class="space-y-6">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label for="username" class="block text-gray-700">Username</label>
+            <input type="text" name="username" id="username" required 
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+          </div>
+          
+          <div>
+            <label for="companyName" class="block text-gray-700">Company Name</label>
+            <input type="text" name="companyName" id="companyName" required 
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+          </div>
+        </div>
+        
+        <div>
+          <label for="email" class="block text-gray-700">Email Address</label>
+          <input type="email" name="email" id="email" required 
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+        </div>
+        
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label for="password" class="block text-gray-700">Password</label>
+            <input type="password" name="password" id="password" minlength="8" required 
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+          </div>
+          
+          <div>
+            <label for="confirmPassword" class="block text-gray-700">Confirm Password</label>
+            <input type="password" name="confirmPassword" id="confirmPassword" minlength="8" required 
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label for="industry" class="block text-gray-700">Industry</label>
+            <select name="industry" id="industry" required 
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+              <option value="">Select Industry</option>
+              <option value="Technology">Technology</option>
+              <option value="Finance">Finance</option>
+              <option value="Healthcare">Healthcare</option>
+              <option value="Education">Education</option>
+              <option value="Retail">Retail</option>
+              <option value="Manufacturing">Manufacturing</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          
+          <div>
+            <label for="companySize" class="block text-gray-700">Company Size</label>
+            <select name="companySize" id="companySize" required 
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+              <option value="">Select Size</option>
+              <option value="1-10">1-10 employees</option>
+              <option value="11-50">11-50 employees</option>
+              <option value="51-200">51-200 employees</option>
+              <option value="201-500">201-500 employees</option>
+              <option value="501-1000">501-1000 employees</option>
+              <option value="1000+">1000+ employees</option>
+            </select>
+          </div>
+        </div>
+        
+        <div>
+          <label for="companyDescription" class="block text-gray-700">Company Description</label>
+          <textarea name="companyDescription" id="companyDescription" rows="4" required 
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none"></textarea>
+          <p class="mt-1 text-sm text-gray-500">Briefly describe your company, mission, and the types of roles you're recruiting for.</p>
+        </div>
+        
+        <div class="flex items-center">
+          <input type="checkbox" name="terms" id="terms" required 
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+          <label for="terms" class="ml-2 block text-sm text-gray-700">
+            I agree to the <a href="#" class="text-blue-600 hover:underline">Terms and Conditions</a> and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>
+          </label>
+        </div>
+        
+        <div class="flex justify-end">
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            Create Company Account
+          </button>
+        </div>
+      </form>
+      
+      <!-- Applicant Registration Form (hidden) -->
+      <form id="applicant-form" action="/register/applicant" method="POST" class="hidden space-y-6">
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label for="username" class="block text-gray-700">Username</label>
+            <input type="text" name="username" required 
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+          </div>
+          
+          <div>
+            <label for="email" class="block text-gray-700">Email Address</label>
+            <input type="email" name="email" required 
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label for="firstName" class="block text-gray-700">First Name</label>
+            <input type="text" name="firstName" required 
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+          </div>
+          
+          <div>
+            <label for="lastName" class="block text-gray-700">Last Name</label>
+            <input type="text" name="lastName" required 
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+          <div>
+            <label for="password" class="block text-gray-700">Password</label>
+            <input type="password" name="password" minlength="8" required 
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+          </div>
+          
+          <div>
+            <label for="confirmPassword" class="block text-gray-700">Confirm Password</label>
+            <input type="password" name="confirmPassword" minlength="8" required 
+              class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none">
+          </div>
+        </div>
+        
+        <div>
+          <label for="skills" class="block text-gray-700">Skills (comma-separated)</label>
+          <input type="text" name="skills" required 
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none"
+            placeholder="JavaScript, React, Node.js, UI/UX Design">
+        </div>
+        
+        <div>
+          <label for="githubProfile" class="block text-gray-700">GitHub Profile URL</label>
+          <input type="url" name="githubProfile" 
+            class="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:border-blue-500 focus:outline-none"
+            placeholder="https://github.com/yourusername">
+        </div>
+        
+        <div class="flex items-center">
+          <input type="checkbox" name="terms" required 
+            class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+          <label for="terms" class="ml-2 block text-sm text-gray-700">
+            I agree to the <a href="#" class="text-blue-600 hover:underline">Terms and Conditions</a> and <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a>
+          </label>
+        </div>
+        
+        <div class="flex justify-end">
+          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+            Create Applicant Account
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white mt-8 py-4">
+    <div class="container mx-auto px-4">
+      <p class="text-center text-gray-500">&copy; 2023 HackHire</p>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const companyTab = document.getElementById('company-tab');
+      const applicantTab = document.getElementById('applicant-tab');
+      const companyForm = document.getElementById('company-form');
+      const applicantForm = document.getElementById('applicant-form');
+      const errorContainer = document.getElementById('error-container');
+      
+      // Show company form by default
+      showCompanyForm();
+      
+      // Tab switching
+      companyTab.addEventListener('click', showCompanyForm);
+      applicantTab.addEventListener('click', showApplicantForm);
+      
+      function showCompanyForm() {
+        companyForm.classList.remove('hidden');
+        applicantForm.classList.add('hidden');
+        companyTab.classList.add('border-b-2', 'border-blue-500', 'text-blue-600');
+        companyTab.classList.remove('border-b', 'border-gray-200', 'text-gray-500');
+        applicantTab.classList.add('border-b', 'border-gray-200', 'text-gray-500');
+        applicantTab.classList.remove('border-b-2', 'border-blue-500', 'text-blue-600');
+      }
+      
+      function showApplicantForm() {
+        companyForm.classList.add('hidden');
+        applicantForm.classList.remove('hidden');
+        applicantTab.classList.add('border-b-2', 'border-blue-500', 'text-blue-600');
+        applicantTab.classList.remove('border-b', 'border-gray-200', 'text-gray-500');
+        companyTab.classList.add('border-b', 'border-gray-200', 'text-gray-500');
+        companyTab.classList.remove('border-b-2', 'border-blue-500', 'text-blue-600');
+      }
+      
+      // Form validation for both forms
+      companyForm.addEventListener('submit', validateForm);
+      applicantForm.addEventListener('submit', validateForm);
+      
+      function validateForm(e) {
+        e.preventDefault();
+        
+        // Get the form being submitted
+        const form = e.target;
+        const password = form.querySelector('input[name="password"]').value;
+        const confirmPassword = form.querySelector('input[name="confirmPassword"]').value;
+        
+        // Clear previous errors
+        errorContainer.classList.add('hidden');
+        errorContainer.textContent = '';
+        
+        // Validate passwords match
+        if (password !== confirmPassword) {
+          errorContainer.textContent = 'Passwords do not match.';
+          errorContainer.classList.remove('hidden');
+          return;
+        }
+        
+        // Validate password strength
+        if (password.length < 8) {
+          errorContainer.textContent = 'Password must be at least 8 characters.';
+          errorContainer.classList.remove('hidden');
+          return;
+        }
+        
+        // Submit the form if validation passes
+        form.submit();
+      }
+    });
+  </script>
+</body>
+</html>
